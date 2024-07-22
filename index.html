@@ -10,28 +10,51 @@
             width: 100%;
             max-width: 600px;
             margin: auto;
+            display: none; /* Inicialmente escondemos el lector de QR */
+        }
+        #scanButton {
+            display: block;
+            margin: 20px auto;
+            padding: 10px 20px;
+            font-size: 18px;
+            cursor: pointer;
+        }
+        #result {
+            text-align: center;
+            margin-top: 20px;
         }
     </style>
 </head>
 <body>
-    <h1>QR Code Scanner</h1>
+    <h1 style="text-align:center;">QR Code Scanner</h1>
+    <button id="scanButton">Escanear Código QR</button>
     <div id="reader"></div>
     <p id="result"></p>
 
     <script>
         function onScanSuccess(decodedText, decodedResult) {
-            // Handle the result here
-            document.getElementById('result').innerText = `Scanned Result: ${decodedText}`;
+            // Maneja el resultado aquí
+            document.getElementById('result').innerText = `Resultado Escaneado: ${decodedText}`;
+            // Detiene el escaneo después de obtener un resultado
+            html5QrcodeScanner.clear().then(_ => {
+                document.getElementById('reader').style.display = 'none'; // Esconde el lector de QR
+            }).catch(error => {
+                console.error('No se pudo detener el escaneo.', error);
+            });
         }
 
         function onScanFailure(error) {
-            // Handle scan failure, usually better to ignore and keep scanning
-            console.warn(`Code scan error = ${error}`);
+            // Maneja la falla de escaneo (generalmente mejor ignorar y seguir escaneando)
+            console.warn(`Error de escaneo: ${error}`);
         }
 
         let html5QrcodeScanner = new Html5QrcodeScanner(
             "reader", { fps: 10, qrbox: 250 });
-        html5QrcodeScanner.render(onScanSuccess, onScanFailure);
+
+        document.getElementById('scanButton').addEventListener('click', function() {
+            document.getElementById('reader').style.display = 'block'; // Muestra el lector de QR
+            html5QrcodeScanner.render(onScanSuccess, onScanFailure);
+        });
     </script>
 </body>
 </html>
